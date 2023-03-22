@@ -139,11 +139,14 @@ class ExternalTokenClassificationTransformer(Pipe):
             yield doc
 
     def _get_annotations_from_spans(self, spans: List[Span]) -> List[List[dict]]:
+        # TODO: warn when truncating? (I'm not sure you can detect this
+        # easily through the current pipeline API)
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", category=UserWarning)
                 return self.tf_pipeline([span.text for span in spans])
         except Exception:
+            # TODO: better UX
             pass
         outputs = []
         for span in spans:
@@ -152,6 +155,7 @@ class ExternalTokenClassificationTransformer(Pipe):
                     warnings.simplefilter("ignore", category=UserWarning)
                     outputs.append(self.tf_pipeline(span.text))
             except Exception:
+                # TODO: better UX
                 warnings.warn(f"Unable to process, skipping span {repr(span.text)}")
                 outputs.append([])
         return outputs
@@ -260,6 +264,7 @@ class ExternalTextClassificationTransformer(Pipe):
                 warnings.simplefilter("ignore", category=UserWarning)
                 return self.tf_pipeline([doc.text for doc in docs], top_k=None)
         except Exception:
+            # TODO: better UX
             pass
         outputs = []
         for doc in docs:
@@ -268,9 +273,7 @@ class ExternalTextClassificationTransformer(Pipe):
                     warnings.simplefilter("ignore", category=UserWarning)
                     outputs.append(self.tf_pipeline(doc.text, top_k=None))
             except Exception:
-                import traceback
-
-                traceback.print_exc(limit=1)
+                # TODO: better UX
                 warnings.warn(f"Unable to process, skipping doc {repr(doc)}")
                 outputs.append([])
         return outputs
