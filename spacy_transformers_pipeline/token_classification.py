@@ -16,14 +16,10 @@ from transformers import pipeline
     default_config={
         "model": "",
         "revision": "main",
+        "stride": 16,
         "aggregation_strategy": "average",
         "annotate": "ents",
         "annotate_spans_key": None,
-        "get_spans": {
-            "@span_getters": "spacy-transformers.strided_spans.v1",
-            "window": 128,
-            "stride": 96,
-        },
         "alignment_mode": "strict",
         "scorer": None,
         "kwargs": {},
@@ -35,9 +31,11 @@ def make_tok_cls_trf(
     name: str,
     model: str,
     revision: str,
+    # maddeningly, the tokenizer stride is the size of the overlap, not the
+    # size of the stride (TODO: rename for this factory?)
+    stride: int,
     # this is intentionally omitting "none" from the aggregation strategies
     aggregation_strategy: Literal["simple", "first", "average", "max"],
-    get_spans: Callable,
     annotate: Literal["ents", "pos", "spans", "tag"],
     annotate_spans_key: Optional[str],
     alignment_mode: Literal["strict", "contract", "expand"],
@@ -61,12 +59,12 @@ def make_tok_cls_trf(
         revision=revision,
         aggregation_strategy=aggregation_strategy,
         device=device,
+        stride=stride,
         **kwargs,
     )
     return ExternalTokenClassificationTransformer(
         name=name,
         tf_pipeline=tf_pipeline,
-        get_spans=get_spans,
         annotate=annotate,
         annotate_spans_key=annotate_spans_key,
         alignment_mode=alignment_mode,
@@ -80,7 +78,6 @@ class ExternalTokenClassificationTransformer(Pipe):
         name: str,
         tf_pipeline: pipeline,
         *,
-        get_spans: Callable,
         annotate: Literal["ents", "pos", "spans", "tag"] = "ents",
         annotate_spans_key: Optional[str] = None,
         alignment_mode: str = "strict",
@@ -88,7 +85,6 @@ class ExternalTokenClassificationTransformer(Pipe):
     ):
         self.name = name
         self.tf_pipeline = tf_pipeline
-        self.get_spans = get_spans
         self.annotate = annotate
         if self.annotate == "spans":
             if isinstance(annotate_spans_key, str):
@@ -105,23 +101,15 @@ class ExternalTokenClassificationTransformer(Pipe):
 
     def pipe(self, stream: Iterable[Doc], *, batch_size: int = 128) -> Iterator[Doc]:
         for docs in util.minibatch(stream, size=batch_size):
-            input_spans = [span for spans in self.get_spans(docs) for span in spans]
-            outputs = self._get_annotations_from_spans(input_spans)
-            doc = docs[0]
-            prev_ann_end = -1
-            output_spans: List[Span] = []
-            for input_span, output in zip(input_spans, outputs):
-                if doc != input_span.doc:
-                    doc = self._set_annotation_from_spans(doc, output_spans)
-                    yield doc
-                    doc = input_span.doc
-                    prev_ann_end = -1
-                    output_spans = []
+            outputs = self._get_annotations(docs)
+            for doc, output in zip(docs, outputs):
+                output_spans = []
+                prev_ann_end = 0
                 for ann in output:
-                    if ann["start"] + input_span.start_char >= prev_ann_end:
+                    if ann["start"] >= prev_ann_end:
                         output_span = doc.char_span(
-                            ann["start"] + input_span.start_char,
-                            ann["end"] + input_span.start_char,
+                            ann["start"],
+                            ann["end"],
                             label=ann["entity_group"],
                             alignment_mode=self.alignment_mode,
                         )
@@ -130,33 +118,33 @@ class ExternalTokenClassificationTransformer(Pipe):
                             and output_span.start_char >= prev_ann_end
                         ):
                             output_spans.append(output_span)
-                            prev_ann_end = ann["end"] + input_span.start_char
+                            prev_ann_end = ann["end"]
                         else:
                             warnings.warn(
-                                f"Skipping annotation, {ann} is overlapping or can't be aligned for span {repr(input_span.text)}"
+                                f"Skipping annotation, {ann} is overlapping or can't be aligned for span {repr(doc.text)}"
                             )
-            doc = self._set_annotation_from_spans(doc, output_spans)
-            yield doc
+                self._set_annotation_from_spans(doc, output_spans)
+                yield doc
 
-    def _get_annotations_from_spans(self, spans: List[Span]) -> List[List[dict]]:
+    def _get_annotations(self, docs: List[Doc]) -> List[List[dict]]:
         # TODO: warn when truncating? (I'm not sure you can detect this
         # easily through the current pipeline API)
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", category=UserWarning)
-                return self.tf_pipeline([span.text for span in spans])
+                return self.tf_pipeline([doc.text for doc in docs])
         except Exception:
             # TODO: better UX
             pass
         outputs = []
-        for span in spans:
+        for doc in docs:
             try:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore", category=UserWarning)
-                    outputs.append(self.tf_pipeline(span.text))
+                    outputs.append(self.tf_pipeline(doc.text))
             except Exception:
                 # TODO: better UX
-                warnings.warn(f"Unable to process, skipping span {repr(span.text)}")
+                warnings.warn(f"Unable to process, skipping doc {repr(doc.text)}")
                 outputs.append([])
         return outputs
 
