@@ -1,5 +1,5 @@
-from .pipeline_components import ExternalTextClassificationTransformer
-from .pipeline_components import ExternalTokenClassificationTransformer
+from .text_classification import ExternalTextClassificationTransformer
+from .token_classification import ExternalTokenClassificationTransformer
 
 
 __all__ = [
