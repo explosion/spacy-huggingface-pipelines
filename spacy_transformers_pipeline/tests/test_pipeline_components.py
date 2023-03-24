@@ -39,7 +39,9 @@ def test_ext_tok_clf(aggregation_strategy, annotate, n_process):
     doc = nlp(" ")
 
     for doc in nlp.pipe(
-        ["a", "b", " ", "c", "", "aaaaabbbbccc bbbccc cccc"], n_process=n_process
+        ["a", "b", " ", "c", "", "aaaaabbbbccc bbbccc cccc", "a bc def " * 500],
+        batch_size=2,
+        n_process=n_process,
     ):
         _check_tok_cls_annotation(doc, annotate)
 
@@ -81,9 +83,10 @@ def test_ext_txt_clf(n_process):
 
     doc = nlp("")
     doc = nlp(" ")
+    doc = nlp("a bc def " * 1000)
 
     for doc in nlp.pipe(
-        ["a", "b", " ", "c", "", "aaaaabbbbccc bbbccc cccc", "f"],
+        ["a", "b", " ", "c", "", "aaabbbccc bbbccc cccc", "f", "a b c " * 500],
         batch_size=2,
         n_process=n_process,
     ):

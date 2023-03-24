@@ -224,6 +224,7 @@ def make_txt_cls_trf(
         model=model,
         revision=revision,
         device=device,
+        truncation=True,
         **kwargs,
     )
     return ExternalTextClassificationTransformer(
@@ -251,18 +252,20 @@ class ExternalTextClassificationTransformer(Pipe):
 
     def pipe(self, stream: Iterable[Doc], *, batch_size: int = 128) -> Iterator[Doc]:
         for docs in util.minibatch(stream, size=batch_size):
-            outputs = self._get_annotations(docs)
+            outputs = self._get_annotations(docs, batch_size=batch_size)
             for doc, output in zip(docs, outputs):
                 doc.cats.update({a["label"]: a["score"] for a in output})
                 yield doc
 
-    def _get_annotations(self, docs: List[Doc]) -> List[List[dict]]:
+    def _get_annotations(self, docs: List[Doc], batch_size) -> List[List[dict]]:
         # TODO: warn when truncating? (I'm not sure you can detect this
         # easily through the current pipeline API)
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", category=UserWarning)
-                return self.tf_pipeline([doc.text for doc in docs], top_k=None)
+                return self.tf_pipeline(
+                    [doc.text for doc in docs], batch_size=batch_size, top_k=None
+                )
         except Exception:
             # TODO: better UX
             pass
