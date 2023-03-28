@@ -3,7 +3,9 @@
 # spacy-transformers-pipeline: Use pretrained transformer models for text and token classification
 
 This package provides [spaCy](https://github.com/explosion/spaCy) components to
-use pretrained [transformers pipelines](https://huggingface.co/docs/transformers/main_classes/pipelines) for inference only.
+use pretrained
+[transformers pipelines](https://huggingface.co/docs/transformers/main_classes/pipelines)
+for inference only.
 
 [![PyPi](https://img.shields.io/pypi/v/spacy-transformers-pipeline.svg?style=flat-square&logo=pypi&logoColor=white)](https://pypi.python.org/pypi/spacy-transformers-pipeline)
 [![GitHub](https://img.shields.io/github/release/explosion/spacy-transformers-pipeline/all.svg?style=flat-square&logo=github)](https://github.com/explosion/spacy-transformers-pipeline/releases)
@@ -11,7 +13,9 @@ use pretrained [transformers pipelines](https://huggingface.co/docs/transformers
 
 ## Features
 
-- Apply pretrained transformers models like [`dslim/bert-base-NER`](https://huggingface.co/dslim/bert-base-NER) and [`distilbert-base-uncased-finetuned-sst-2-english`](https://huggingface.co/distilbert-base-uncased-finetuned-sst-2-english).
+- Apply pretrained transformers models like
+  [`dslim/bert-base-NER`](https://huggingface.co/dslim/bert-base-NER) and
+  [`distilbert-base-uncased-finetuned-sst-2-english`](https://huggingface.co/distilbert-base-uncased-finetuned-sst-2-english).
 
 ## 🚀 Installation
 
@@ -23,7 +27,8 @@ pip install -U pip setuptools wheel
 pip install spacy-transformers-pipeline
 ```
 
-For GPU installation, follow the [spaCy installation quickstart with GPU](https://spacy.io/usage/), e.g.
+For GPU installation, follow the
+[spaCy installation quickstart with GPU](https://spacy.io/usage/), e.g.
 
 ```bash
 pip install -U spacy[cuda-autodetect]
@@ -35,21 +40,61 @@ for your specific operating system and requirements.
 
 ## 📖 Documentation
 
+This module provides spaCy wrappers for around the inference-only transformers
+[`TokenClassificationPipeline`](https://huggingface.co/docs/transformers/main/en/main_classes/pipelines#transformers.TokenClassificationPipeline)
+and
+[`TextClassificationPipeline`](https://huggingface.co/docs/transformers/main/en/main_classes/pipelines#transformers.TextClassificationPipeline)
+pipelines.
+
+The models are downloaded on initialization from the Hugging Face Hub if they're
+not already in your local cache, or alternatively they can be loaded from a
+local path.
+
+Note that the transformer model data is not saved with the pipeline when you
+call `nlp.to_disk`, so if you are loading pipelines in an environment with
+limited internet access, make sure the model is available in your
+[transformers cache directory](https://huggingface.co/docs/transformers/main/en/installation#cache-setup)
+and enable offline mode if needed.
+
 ### Token classification
 
-- Save the output as `token.tag_`, `token.pos_` (only for UPOS tags), `doc.ents` or `doc.spans`.
-- Annotate texts longer than the model max length by splitting the text into
-  spans with configurable [span getters](https://spacy.io/api/transformer#span_getters).
+Config settings for `ext_tok_cls_trf`:
+
+```ini
+[components.ext_tok_cls_trf]
+factory = "ext_tok_cls_trf"
+aggregation_strategy = "average"  # "simple", "first", "average", "max"
+alignment_mode = "strict"         # "strict", "contract", "expand"
+annotate = "ents"                 # "ents", "pos", "spans", "tag"
+annotate_spans_key = null         # Doc.spans key for annotate = "spans"
+model = "dslim/bert-base-NER"     # Model name or path
+revision = "main"                 # Model revision
+scorer = null                     # Optional scorer, e.g. {"@scorers": "spacy.ner_scorer.v1"}
+stride = 16                       # Use stride > 0 to process long texts in
+                                  # overlapping windows of the model max length.
+                                  # The value is the length of the window
+                                  # overlap in transformer tokenizer tokens,
+                                  # NOT the length of the stride.
+```
+
+You can save the output as `token.tag_`, `token.pos_` (only for UPOS tags),
+`doc.ents` or `doc.spans`.
+
+1. Save named entity annotation as `Doc.ents`:
 
 ```python
 import spacy
-
 nlp = spacy.blank("en")
 nlp.add_pipe("ext_tok_cls_trf", config={"model": "dslim/bert-base-NER"})
 doc = nlp("My name is Sarah and I live in London")
 print(doc.ents)
 # (Sarah, London)
+```
 
+2. Save named entity annotation as `Doc.spans[spans_key]`:
+
+```python
+import sapcy
 nlp = spacy.blank("en")
 nlp.add_pipe(
     "ext_tok_cls_trf",
@@ -62,7 +107,12 @@ nlp.add_pipe(
 doc = nlp("My name is Sarah and I live in London")
 print(doc.spans["bert-base-ner"])
 # [Sarah, London]
+```
 
+3. Save fine-grained tags as `Token.tag`:
+
+```python
+import spacy
 nlp = spacy.blank("en")
 nlp.add_pipe(
     "ext_tok_cls_trf",
@@ -74,7 +124,12 @@ nlp.add_pipe(
 doc = nlp("My name is Sarah and I live in London")
 print([t.tag_ for t in doc])
 # ['PRP$', 'NN', 'VBZ', 'NNP', 'CC', 'PRP', 'VBP', 'IN', 'NNP']
+```
 
+4. Save coarse-grained tags as `Token.pos`:
+
+```python
+import spacy
 nlp = spacy.blank("en")
 nlp.add_pipe(
     "ext_tok_cls_trf",
@@ -87,7 +142,17 @@ print([t.pos_ for t in doc])
 
 ### Text classification
 
-- The input texts are truncated according to the transformers model max length.
+Config settings for `ext_txt_cls_trf`:
+
+```ini
+[components.ext_txt_cls_trf]
+factory = "ext_txt_cls_trf"
+model = "distilbert-base-uncased-finetuned-sst-2-english"  # Model name or path
+revision = "main"                                          # Model revision
+scorer = null                                              # Optional scorer.
+```
+
+The input texts are truncated according to the transformers model max length.
 
 ```python
 import spacy
