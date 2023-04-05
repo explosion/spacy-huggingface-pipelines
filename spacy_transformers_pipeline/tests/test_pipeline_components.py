@@ -92,3 +92,4 @@ def test_ext_txt_clf(n_process):
     ):
         assert len(doc.cats) > 0
         assert all(l.startswith("LABEL_") for l in doc.cats)
+
