@@ -11,7 +11,7 @@ from transformers import pipeline
 
 
 @Language.factory(
-    "ext_txt_cls_trf",
+    "trf_text_pipe",
     assigns=[],
     default_config={
         "model": "",
@@ -38,7 +38,7 @@ def make_txt_cls_trf(
     if model == "":
         raise ValueError(
             "No model provided. Specify the model in your config, e.g.:\n\n"
-            'nlp.add_pipe("ext_txt_cls_trf", config={"model": "distilbert-base-uncased-finetuned-sst-2-english"})'
+            'nlp.add_pipe("trf_text_pipe", config={"model": "distilbert-base-uncased-finetuned-sst-2-english"})'
         )
     tf_pipeline = pipeline(
         task="text-classification",
