@@ -11,7 +11,7 @@ from transformers import pipeline
 
 
 @Language.factory(
-    "ext_tok_cls_trf",
+    "trf_token_pipe",
     assigns=[],
     default_config={
         "model": "",
@@ -51,7 +51,7 @@ def make_tok_cls_trf(
     if model == "":
         raise ValueError(
             "No model provided. Specify the model in your config, e.g.:\n\n"
-            'nlp.add_pipe("ext_tok_cls_trf", config={"model": "dslim/bert-base-NER"})'
+            'nlp.add_pipe("trf_token_pipe", config={"model": "dslim/bert-base-NER"})'
         )
     tf_pipeline = pipeline(
         task="token-classification",
@@ -91,7 +91,7 @@ class ExternalTokenClassificationTransformer(Pipe):
                 self.annotate_spans_key = annotate_spans_key
             else:
                 raise ValueError(
-                    "'annotate_spans_key' setting required to set spans annotations for ext_tok_cls_trf"
+                    "'annotate_spans_key' setting required to set spans annotations for trf_token_pipe"
                 )
         self.alignment_mode = alignment_mode
         self.scorer = scorer

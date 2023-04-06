@@ -58,18 +58,18 @@ and enable offline mode if needed.
 
 ### Token classification
 
-Config settings for `ext_tok_cls_trf`:
+Config settings for `trf_token_pipe`:
 
 ```ini
-[components.ext_tok_cls_trf]
-factory = "ext_tok_cls_trf"
+[components.trf_token_pipe]
+factory = "trf_token_pipe"
 aggregation_strategy = "average"  # "simple", "first", "average", "max"
 alignment_mode = "strict"         # "strict", "contract", "expand"
 annotate = "ents"                 # "ents", "pos", "spans", "tag"
 annotate_spans_key = null         # Doc.spans key for annotate = "spans"
 model = "dslim/bert-base-NER"     # Model name or path
 revision = "main"                 # Model revision
-scorer = null                     # Optional scorer, e.g. {"@scorers": "spacy.ner_scorer.v1"}
+scorer = null                     # Optional scorer
 stride = 16                       # Use stride > 0 to process long texts in
                                   # overlapping windows of the model max length.
                                   # The value is the length of the window
@@ -85,7 +85,7 @@ You can save the output as `token.tag_`, `token.pos_` (only for UPOS tags),
 ```python
 import spacy
 nlp = spacy.blank("en")
-nlp.add_pipe("ext_tok_cls_trf", config={"model": "dslim/bert-base-NER"})
+nlp.add_pipe("trf_token_pipe", config={"model": "dslim/bert-base-NER"})
 doc = nlp("My name is Sarah and I live in London")
 print(doc.ents)
 # (Sarah, London)
@@ -97,7 +97,7 @@ print(doc.ents)
 import sapcy
 nlp = spacy.blank("en")
 nlp.add_pipe(
-    "ext_tok_cls_trf",
+    "trf_token_pipe",
     config={
         "model": "dslim/bert-base-NER",
         "annotate": "spans",
@@ -115,7 +115,7 @@ print(doc.spans["bert-base-ner"])
 import spacy
 nlp = spacy.blank("en")
 nlp.add_pipe(
-    "ext_tok_cls_trf",
+    "trf_token_pipe",
     config={
         "model": "QCRI/bert-base-multilingual-cased-pos-english",
         "annotate": "tag",
@@ -132,7 +132,7 @@ print([t.tag_ for t in doc])
 import spacy
 nlp = spacy.blank("en")
 nlp.add_pipe(
-    "ext_tok_cls_trf",
+    "trf_token_pipe",
     config={"model": "vblagoje/bert-english-uncased-finetuned-pos", "annotate": "pos"},
 )
 doc = nlp("My name is Sarah and I live in London")
@@ -142,14 +142,14 @@ print([t.pos_ for t in doc])
 
 ### Text classification
 
-Config settings for `ext_txt_cls_trf`:
+Config settings for `trf_text_pipe`:
 
 ```ini
-[components.ext_txt_cls_trf]
-factory = "ext_txt_cls_trf"
+[components.trf_text_pipe]
+factory = "trf_text_pipe"
 model = "distilbert-base-uncased-finetuned-sst-2-english"  # Model name or path
 revision = "main"                                          # Model revision
-scorer = null                                              # Optional scorer.
+scorer = null                                              # Optional scorer
 ```
 
 The input texts are truncated according to the transformers model max length.
@@ -159,7 +159,7 @@ import spacy
 
 nlp = spacy.blank("en")
 nlp.add_pipe(
-    "ext_txt_cls_trf",
+    "trf_text_pipe",
     config={"model": "distilbert-base-uncased-finetuned-sst-2-english"},
 )
 doc = nlp("This is great!")

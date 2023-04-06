@@ -12,7 +12,7 @@ torch.set_num_threads(1)
 @pytest.mark.parametrize("annotate", ("ents", "spans", "tag"))
 @pytest.mark.parametrize("n_process", (1, 2))
 @pytest.mark.filterwarnings("ignore::UserWarning")
-def test_ext_tok_clf(aggregation_strategy, annotate, n_process):
+def test_trf_token_pipe(aggregation_strategy, annotate, n_process):
     if (
         n_process > 1
         and isinstance(get_torch_default_device().index, int)
@@ -21,7 +21,7 @@ def test_ext_tok_clf(aggregation_strategy, annotate, n_process):
         return
     nlp = spacy.blank("xx")
     nlp.add_pipe(
-        "ext_tok_cls_trf",
+        "trf_token_pipe",
         config={
             "model": "hf-internal-testing/tiny-random-BertForTokenClassification",
             "aggregation_strategy": aggregation_strategy,
@@ -63,7 +63,7 @@ def _check_tok_cls_annotation(doc, annotate):
 
 @pytest.mark.parametrize("n_process", (1, 2))
 @pytest.mark.filterwarnings("ignore::UserWarning")
-def test_ext_txt_clf(n_process):
+def test_trf_text_pipe(n_process):
     if (
         n_process > 1
         and isinstance(get_torch_default_device().index, int)
@@ -72,7 +72,7 @@ def test_ext_txt_clf(n_process):
         return
     nlp = spacy.blank("xx")
     nlp.add_pipe(
-        "ext_txt_cls_trf",
+        "trf_text_pipe",
         config={
             "model": "hf-internal-testing/tiny-random-BertForSequenceClassification",
         },
