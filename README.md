@@ -4,7 +4,7 @@
 
 This package provides [spaCy](https://github.com/explosion/spaCy) components to
 use pretrained
-[transformers pipelines](https://huggingface.co/docs/transformers/main_classes/pipelines)
+[Hugging Face Transformers pipelines](https://huggingface.co/docs/transformers/main_classes/pipelines)
 for inference only.
 
 [![PyPi](https://img.shields.io/pypi/v/spacy-transformers-pipeline.svg?style=flat-square&logo=pypi&logoColor=white)](https://pypi.python.org/pypi/spacy-transformers-pipeline)
