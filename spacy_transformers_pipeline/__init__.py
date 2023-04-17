@@ -1,8 +1,8 @@
-from .text_classification import ExternalTextClassificationTransformer
-from .token_classification import ExternalTokenClassificationTransformer
+from .text_classification import TrfTextPipe
+from .token_classification import TrfTokenPipe
 
 
 __all__ = [
-    "ExternalTextClassificationTransformer",
-    "ExternalTokenClassificationTransformer",
+    "TrfTextPipe",
+    "TrfTokenPipe",
 ]

@@ -21,7 +21,7 @@ from transformers import pipeline
     },
     default_score_weights={},
 )
-def make_txt_cls_trf(
+def make_trf_text_pipe(
     nlp: Language,
     name: str,
     model: str,
@@ -48,14 +48,14 @@ def make_txt_cls_trf(
         truncation=True,
         **kwargs,
     )
-    return ExternalTextClassificationTransformer(
+    return TrfTextPipe(
         name=name,
         tf_pipeline=tf_pipeline,
         scorer=scorer,
     )
 
 
-class ExternalTextClassificationTransformer(Pipe):
+class TrfTextPipe(Pipe):
     def __init__(
         self, name: str, tf_pipeline: pipeline, *, scorer: Optional[Callable] = None
     ):
