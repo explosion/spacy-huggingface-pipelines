@@ -26,7 +26,7 @@ from transformers import pipeline
     },
     default_score_weights={},
 )
-def make_tok_cls_trf(
+def make_trf_token_pipe(
     nlp: Language,
     name: str,
     model: str,
@@ -62,7 +62,7 @@ def make_tok_cls_trf(
         stride=stride,
         **kwargs,
     )
-    return ExternalTokenClassificationTransformer(
+    return TrfTokenPipe(
         name=name,
         tf_pipeline=tf_pipeline,
         annotate=annotate,
@@ -72,7 +72,7 @@ def make_tok_cls_trf(
     )
 
 
-class ExternalTokenClassificationTransformer(Pipe):
+class TrfTokenPipe(Pipe):
     def __init__(
         self,
         name: str,

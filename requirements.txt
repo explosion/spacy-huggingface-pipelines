@@ -1,5 +1,5 @@
 spacy>=3.0.0,<4.0.0
-transformers@https://github.com/huggingface/transformers/archive/d62e7d8842514b3d857a0df0957a8ddb3b5929fd.zip
+transformers>=4.28.0,<5.0.0
 torch>=1.8.0
 # Development dependencies
 pytest>=5.2.0
