@@ -4,7 +4,7 @@
 
 This package provides [spaCy](https://github.com/explosion/spaCy) components to
 use pretrained
-[transformers pipelines](https://huggingface.co/docs/transformers/main_classes/pipelines)
+[Hugging Face Transformers pipelines](https://huggingface.co/docs/transformers/main_classes/pipelines)
 for inference only.
 
 [![PyPi](https://img.shields.io/pypi/v/spacy-transformers-pipeline.svg?style=flat-square&logo=pypi&logoColor=white)](https://pypi.python.org/pypi/spacy-transformers-pipeline)
@@ -50,7 +50,7 @@ The models are downloaded on initialization from the Hugging Face Hub if they're
 not already in your local cache, or alternatively they can be loaded from a
 local path.
 
-Note that the transformer model data is not saved with the pipeline when you
+Note that the transformer model data **is not saved with the pipeline** when you
 call `nlp.to_disk`, so if you are loading pipelines in an environment with
 limited internet access, make sure the model is available in your
 [transformers cache directory](https://huggingface.co/docs/transformers/main/en/installation#cache-setup)
@@ -63,22 +63,49 @@ Config settings for `trf_token_pipe`:
 ```ini
 [components.trf_token_pipe]
 factory = "trf_token_pipe"
-aggregation_strategy = "average"  # "simple", "first", "average", "max"
-alignment_mode = "strict"         # "strict", "contract", "expand"
-annotate = "ents"                 # "ents", "pos", "spans", "tag"
-annotate_spans_key = null         # Doc.spans key for annotate = "spans"
 model = "dslim/bert-base-NER"     # Model name or path
 revision = "main"                 # Model revision
-scorer = null                     # Optional scorer
+aggregation_strategy = "average"  # "simple", "first", "average", "max"
 stride = 16                       # Use stride > 0 to process long texts in
                                   # overlapping windows of the model max length.
                                   # The value is the length of the window
                                   # overlap in transformer tokenizer tokens,
                                   # NOT the length of the stride.
+kwargs = {}                       # Any additional arguments for
+                                  # TokenClassificationPipeline
+alignment_mode = "strict"         # "strict", "contract", "expand"
+annotate = "ents"                 # "ents", "pos", "spans", "tag"
+annotate_spans_key = null         # Doc.spans key for annotate = "spans"
+scorer = null                     # Optional scorer
 ```
 
-You can save the output as `token.tag_`, `token.pos_` (only for UPOS tags),
-`doc.ents` or `doc.spans`.
+#### `TokenClassificationPipeline` settings
+
+- `model`: The model name or path.
+- `revision`: The model revision. For production use, a specific git commit is
+  recommended instead of the default `main`.
+- `stride`: For `stride > 0`, the text is processed in overlapping windows where
+  the `stride` setting specifies the number of overlapping tokens between
+  windows (NOT the stride length). If `stride` is `0`, then the text is
+  processed as a whole, which may lead to model errors for texts longer than the
+  model max length.
+- `aggregation_strategy`: The aggregation strategy determines the word-level
+  tags for cases where subwords within one word do not receive the same
+  predicted tag. See:
+  https://huggingface.co/docs/transformers/main_classes/pipelines#transformers.TokenClassificationPipeline.aggregation_strategy
+- `kwargs`: Any additional arguments to
+  [`TokenClassificationPipeline`](https://huggingface.co/docs/transformers/main_classes/pipelines#transformers.TokenClassificationPipeline).
+
+#### spaCy settings
+
+- `alignment_mode` determines how transformer predictions are aligned to spaCy
+  token boundaries as described for
+  [`Doc.char_span`](https://spacy.io/api/doc#char_span).
+- `annotate` and `annotate_spans_key` configure how the annotation is saved to
+  the spaCy doc. You can save the output as `token.tag_`, `token.pos_` (only for
+  UPOS tags), `doc.ents` or `doc.spans`.
+
+#### Examples
 
 1. Save named entity annotation as `Doc.ents`:
 
@@ -148,11 +175,23 @@ Config settings for `trf_text_pipe`:
 [components.trf_text_pipe]
 factory = "trf_text_pipe"
 model = "distilbert-base-uncased-finetuned-sst-2-english"  # Model name or path
-revision = "main"                                          # Model revision
-scorer = null                                              # Optional scorer
+revision = "main"                 # Model revision
+kwargs = {}                       # Any additional arguments for
+                                  # TextClassificationPipeline
+scorer = null                     # Optional scorer
 ```
 
 The input texts are truncated according to the transformers model max length.
+
+#### `TextClassificationPipeline` settings
+
+- `model`: The model name or path.
+- `revision`: The model revision. For production use, a specific git commit is
+  recommended instead of the default `main`.
+- `kwargs`: Any additional arguments to
+  [`TextClassificationPipeline`](https://huggingface.co/docs/transformers/main_classes/pipelines#transformers.TextClassificationPipeline).
+
+#### Example
 
 ```python
 import spacy
