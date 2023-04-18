@@ -7,8 +7,8 @@ use pretrained
 [Hugging Face Transformers pipelines](https://huggingface.co/docs/transformers/main_classes/pipelines)
 for inference only.
 
-[![PyPi](https://img.shields.io/pypi/v/spacy-transformers-pipeline.svg?style=flat-square&logo=pypi&logoColor=white)](https://pypi.python.org/pypi/spacy-transformers-pipeline)
-[![GitHub](https://img.shields.io/github/release/explosion/spacy-transformers-pipeline/all.svg?style=flat-square&logo=github)](https://github.com/explosion/spacy-transformers-pipeline/releases)
+[![PyPi](https://img.shields.io/pypi/v/spacy-huggingface-pipelines.svg?style=flat-square&logo=pypi&logoColor=white)](https://pypi.python.org/pypi/spacy-huggingface-pipelines)
+[![GitHub](https://img.shields.io/github/release/explosion/spacy-huggingface-pipelines/all.svg?style=flat-square&logo=github)](https://github.com/explosion/spacy-huggingface-pipelines/releases)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/ambv/black)
 
 ## Features
@@ -24,7 +24,7 @@ including PyTorch and spaCy.
 
 ```bash
 pip install -U pip setuptools wheel
-pip install spacy-transformers-pipeline
+pip install spacy-huggingface-pipelines
 ```
 
 For GPU installation, follow the
