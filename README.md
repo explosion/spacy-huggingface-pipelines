@@ -1,14 +1,14 @@
 <a href="https://explosion.ai"><img src="https://explosion.ai/assets/img/logo.svg" width="125" height="125" align="right" /></a>
 
-# spacy-transformers-pipeline: Use pretrained transformer models for text and token classification
+# spacy-huggingface-pipelines: Use pretrained transformer models for text and token classification
 
 This package provides [spaCy](https://github.com/explosion/spaCy) components to
 use pretrained
 [Hugging Face Transformers pipelines](https://huggingface.co/docs/transformers/main_classes/pipelines)
 for inference only.
 
-[![PyPi](https://img.shields.io/pypi/v/spacy-transformers-pipeline.svg?style=flat-square&logo=pypi&logoColor=white)](https://pypi.python.org/pypi/spacy-transformers-pipeline)
-[![GitHub](https://img.shields.io/github/release/explosion/spacy-transformers-pipeline/all.svg?style=flat-square&logo=github)](https://github.com/explosion/spacy-transformers-pipeline/releases)
+[![PyPi](https://img.shields.io/pypi/v/spacy-huggingface-pipelines.svg?style=flat-square&logo=pypi&logoColor=white)](https://pypi.python.org/pypi/spacy-huggingface-pipelines)
+[![GitHub](https://img.shields.io/github/release/explosion/spacy-huggingface-pipelines/all.svg?style=flat-square&logo=github)](https://github.com/explosion/spacy-huggingface-pipelines/releases)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg?style=flat-square)](https://github.com/ambv/black)
 
 ## Features
@@ -24,7 +24,7 @@ including PyTorch and spaCy.
 
 ```bash
 pip install -U pip setuptools wheel
-pip install spacy-transformers-pipeline
+pip install spacy-huggingface-pipelines
 ```
 
 For GPU installation, follow the
@@ -58,11 +58,11 @@ and enable offline mode if needed.
 
 ### Token classification
 
-Config settings for `trf_token_pipe`:
+Config settings for `hf_token_pipe`:
 
 ```ini
-[components.trf_token_pipe]
-factory = "trf_token_pipe"
+[components.hf_token_pipe]
+factory = "hf_token_pipe"
 model = "dslim/bert-base-NER"     # Model name or path
 revision = "main"                 # Model revision
 aggregation_strategy = "average"  # "simple", "first", "average", "max"
@@ -112,7 +112,7 @@ scorer = null                     # Optional scorer
 ```python
 import spacy
 nlp = spacy.blank("en")
-nlp.add_pipe("trf_token_pipe", config={"model": "dslim/bert-base-NER"})
+nlp.add_pipe("hf_token_pipe", config={"model": "dslim/bert-base-NER"})
 doc = nlp("My name is Sarah and I live in London")
 print(doc.ents)
 # (Sarah, London)
@@ -124,7 +124,7 @@ print(doc.ents)
 import sapcy
 nlp = spacy.blank("en")
 nlp.add_pipe(
-    "trf_token_pipe",
+    "hf_token_pipe",
     config={
         "model": "dslim/bert-base-NER",
         "annotate": "spans",
@@ -142,7 +142,7 @@ print(doc.spans["bert-base-ner"])
 import spacy
 nlp = spacy.blank("en")
 nlp.add_pipe(
-    "trf_token_pipe",
+    "hf_token_pipe",
     config={
         "model": "QCRI/bert-base-multilingual-cased-pos-english",
         "annotate": "tag",
@@ -159,7 +159,7 @@ print([t.tag_ for t in doc])
 import spacy
 nlp = spacy.blank("en")
 nlp.add_pipe(
-    "trf_token_pipe",
+    "hf_token_pipe",
     config={"model": "vblagoje/bert-english-uncased-finetuned-pos", "annotate": "pos"},
 )
 doc = nlp("My name is Sarah and I live in London")
@@ -169,11 +169,11 @@ print([t.pos_ for t in doc])
 
 ### Text classification
 
-Config settings for `trf_text_pipe`:
+Config settings for `hf_text_pipe`:
 
 ```ini
-[components.trf_text_pipe]
-factory = "trf_text_pipe"
+[components.hf_text_pipe]
+factory = "hf_text_pipe"
 model = "distilbert-base-uncased-finetuned-sst-2-english"  # Model name or path
 revision = "main"                 # Model revision
 kwargs = {}                       # Any additional arguments for
@@ -198,7 +198,7 @@ import spacy
 
 nlp = spacy.blank("en")
 nlp.add_pipe(
-    "trf_text_pipe",
+    "hf_text_pipe",
     config={"model": "distilbert-base-uncased-finetuned-sst-2-english"},
 )
 doc = nlp("This is great!")

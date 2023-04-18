@@ -10,7 +10,7 @@ on:
       - "*.md"
 
 env:
-  MODULE_NAME: 'spacy_transformers_pipeline'
+  MODULE_NAME: 'spacy_huggingface_pipelines'
   RUN_MYPY: 'true'
 
 jobs:

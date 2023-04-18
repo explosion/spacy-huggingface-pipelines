@@ -11,7 +11,7 @@ from transformers import pipeline
 
 
 @Language.factory(
-    "trf_token_pipe",
+    "hf_token_pipe",
     assigns=[],
     default_config={
         "model": "",
@@ -26,7 +26,7 @@ from transformers import pipeline
     },
     default_score_weights={},
 )
-def make_trf_token_pipe(
+def make_hf_token_pipe(
     nlp: Language,
     name: str,
     model: str,
@@ -51,7 +51,7 @@ def make_trf_token_pipe(
     if model == "":
         raise ValueError(
             "No model provided. Specify the model in your config, e.g.:\n\n"
-            'nlp.add_pipe("trf_token_pipe", config={"model": "dslim/bert-base-NER"})'
+            'nlp.add_pipe("hf_token_pipe", config={"model": "dslim/bert-base-NER"})'
         )
     tf_pipeline = pipeline(
         task="token-classification",
@@ -91,7 +91,7 @@ class TrfTokenPipe(Pipe):
                 self.annotate_spans_key = annotate_spans_key
             else:
                 raise ValueError(
-                    "'annotate_spans_key' setting required to set spans annotations for trf_token_pipe"
+                    "'annotate_spans_key' setting required to set spans annotations for hf_token_pipe"
                 )
         self.alignment_mode = alignment_mode
         self.scorer = scorer
