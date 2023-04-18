@@ -121,7 +121,7 @@ print(doc.ents)
 2. Save named entity annotation as `Doc.spans[spans_key]`:
 
 ```python
-import sapcy
+import spacy
 nlp = spacy.blank("en")
 nlp.add_pipe(
     "hf_token_pipe",
