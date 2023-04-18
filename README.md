@@ -40,15 +40,15 @@ for your specific operating system and requirements.
 
 ## 📖 Documentation
 
-This module provides spaCy wrappers for around the inference-only transformers
+This module provides spaCy wrappers for the inference-only transformers
 [`TokenClassificationPipeline`](https://huggingface.co/docs/transformers/main/en/main_classes/pipelines#transformers.TokenClassificationPipeline)
 and
 [`TextClassificationPipeline`](https://huggingface.co/docs/transformers/main/en/main_classes/pipelines#transformers.TextClassificationPipeline)
 pipelines.
 
-The models are downloaded on initialization from the Hugging Face Hub if they're
-not already in your local cache, or alternatively they can be loaded from a
-local path.
+The models are downloaded on initialization from the
+[Hugging Face Hub](https://huggingface.co/models) if they're not already in your
+local cache, or alternatively they can be loaded from a local path.
 
 Note that the transformer model data **is not saved with the pipeline** when you
 call `nlp.to_disk`, so if you are loading pipelines in an environment with
@@ -212,7 +212,7 @@ Both token and text classification support batching with `nlp.pipe`:
 
 ```python
 for doc in nlp.pipe(texts, batch_size=256):
-    my_func(doc)
+    do_something(doc)
 ```
 
 Switch to GPU:
@@ -222,5 +222,12 @@ import spacy
 spacy.require_gpu()
 
 for doc in nlp.pipe(texts):
-    my_func(doc)
+    do_something(doc)
 ```
+
+## Bug reports and issues
+
+Please report bugs in the
+[spaCy issue tracker](https://github.com/explosion/spaCy/issues) or open a new
+thread on the [discussion board](https://github.com/explosion/spaCy/discussions)
+for other issues.
