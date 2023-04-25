@@ -31,9 +31,9 @@ def make_hf_token_pipe(
     name: str,
     model: str,
     revision: str,
-    # maddeningly, the tokenizer stride is the size of the overlap, not the
-    # size of the stride (TODO: rename for this factory?)
-    stride: int,
+    # note that the tokenizer stride is the size of the overlap, not the size of
+    # the stride
+    stride: Optional[int],
     # this is intentionally omitting "none" from the aggregation strategies
     aggregation_strategy: Literal["simple", "first", "average", "max"],
     annotate: Literal["ents", "pos", "spans", "tag"],

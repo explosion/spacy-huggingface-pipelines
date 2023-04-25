@@ -65,11 +65,11 @@ factory = "hf_token_pipe"
 model = "dslim/bert-base-NER"     # Model name or path
 revision = "main"                 # Model revision
 aggregation_strategy = "average"  # "simple", "first", "average", "max"
-stride = 16                       # Use stride > 0 to process long texts in
-                                  # overlapping windows of the model max length.
-                                  # The value is the length of the window
-                                  # overlap in transformer tokenizer tokens,
-                                  # NOT the length of the stride.
+stride = 16                       # If stride >= 0, process long texts in
+                                  # overlapping windows of the model max
+                                  # length. The value is the length of the
+                                  # window overlap in transformer tokenizer
+                                  # tokens, NOT the length of the stride.
 kwargs = {}                       # Any additional arguments for
                                   # TokenClassificationPipeline
 alignment_mode = "strict"         # "strict", "contract", "expand"
@@ -83,11 +83,10 @@ scorer = null                     # Optional scorer
 - `model`: The model name or path.
 - `revision`: The model revision. For production use, a specific git commit is
   recommended instead of the default `main`.
-- `stride`: For `stride > 0`, the text is processed in overlapping windows where
-  the `stride` setting specifies the number of overlapping tokens between
-  windows (NOT the stride length). If `stride` is `0`, then the text is
-  processed as a whole, which may lead to model errors for texts longer than the
-  model max length.
+- `stride`: For `stride >= 0`, the text is processed in overlapping windows
+  where the `stride` setting specifies the number of overlapping tokens between
+  windows (NOT the stride length). If `stride` is `None`, then the text may be
+  truncated. `stride` is only supported for fast tokenizers.
 - `aggregation_strategy`: The aggregation strategy determines the word-level
   tags for cases where subwords within one word do not receive the same
   predicted tag. See:
