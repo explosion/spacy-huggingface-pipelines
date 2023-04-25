@@ -40,7 +40,7 @@ def make_hf_text_pipe(
             "No model provided. Specify the model in your config, e.g.:\n\n"
             'nlp.add_pipe("hf_text_pipe", config={"model": "distilbert-base-uncased-finetuned-sst-2-english"})'
         )
-    tf_pipeline = pipeline(
+    hf_pipeline = pipeline(
         task="text-classification",
         model=model,
         revision=revision,
@@ -48,19 +48,19 @@ def make_hf_text_pipe(
         truncation=True,
         **kwargs,
     )
-    return TrfTextPipe(
+    return HfTextPipe(
         name=name,
-        tf_pipeline=tf_pipeline,
+        hf_pipeline=hf_pipeline,
         scorer=scorer,
     )
 
 
-class TrfTextPipe(Pipe):
+class HfTextPipe(Pipe):
     def __init__(
-        self, name: str, tf_pipeline: pipeline, *, scorer: Optional[Callable] = None
+        self, name: str, hf_pipeline: pipeline, *, scorer: Optional[Callable] = None
     ):
         self.name = name
-        self.tf_pipeline = tf_pipeline
+        self.hf_pipeline = hf_pipeline
         self.scorer = scorer
 
     def __call__(self, doc: Doc) -> Doc:
@@ -84,7 +84,7 @@ class TrfTextPipe(Pipe):
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", category=UserWarning)
-                return self.tf_pipeline(
+                return self.hf_pipeline(
                     [doc.text for doc in docs], batch_size=batch_size, top_k=None
                 )
         except Exception:
@@ -95,7 +95,7 @@ class TrfTextPipe(Pipe):
             try:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore", category=UserWarning)
-                    outputs.append(self.tf_pipeline(doc.text, top_k=None))
+                    outputs.append(self.hf_pipeline(doc.text, top_k=None))
             except Exception:
                 # TODO: better UX
                 warnings.warn(f"Unable to process, skipping doc {repr(doc)}")
