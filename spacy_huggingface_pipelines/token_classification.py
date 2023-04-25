@@ -53,7 +53,7 @@ def make_hf_token_pipe(
             "No model provided. Specify the model in your config, e.g.:\n\n"
             'nlp.add_pipe("hf_token_pipe", config={"model": "dslim/bert-base-NER"})'
         )
-    tf_pipeline = pipeline(
+    hf_pipeline = pipeline(
         task="token-classification",
         model=model,
         revision=revision,
@@ -62,9 +62,9 @@ def make_hf_token_pipe(
         stride=stride,
         **kwargs,
     )
-    return TrfTokenPipe(
+    return HfTokenPipe(
         name=name,
-        tf_pipeline=tf_pipeline,
+        hf_pipeline=hf_pipeline,
         annotate=annotate,
         annotate_spans_key=annotate_spans_key,
         alignment_mode=alignment_mode,
@@ -72,11 +72,11 @@ def make_hf_token_pipe(
     )
 
 
-class TrfTokenPipe(Pipe):
+class HfTokenPipe(Pipe):
     def __init__(
         self,
         name: str,
-        tf_pipeline: pipeline,
+        hf_pipeline: pipeline,
         *,
         annotate: Literal["ents", "pos", "spans", "tag"] = "ents",
         annotate_spans_key: Optional[str] = None,
@@ -84,7 +84,7 @@ class TrfTokenPipe(Pipe):
         scorer: Optional[Callable] = None,
     ):
         self.name = name
-        self.tf_pipeline = tf_pipeline
+        self.hf_pipeline = hf_pipeline
         self.annotate = annotate
         if self.annotate == "spans":
             if isinstance(annotate_spans_key, str):
@@ -132,7 +132,7 @@ class TrfTokenPipe(Pipe):
         try:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore", category=UserWarning)
-                return self.tf_pipeline([doc.text for doc in docs])
+                return self.hf_pipeline([doc.text for doc in docs])
         except Exception:
             # TODO: better UX
             pass
@@ -141,7 +141,7 @@ class TrfTokenPipe(Pipe):
             try:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore", category=UserWarning)
-                    outputs.append(self.tf_pipeline(doc.text))
+                    outputs.append(self.hf_pipeline(doc.text))
             except Exception:
                 # TODO: better UX
                 warnings.warn(f"Unable to process, skipping doc {repr(doc.text)}")
