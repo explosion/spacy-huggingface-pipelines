@@ -213,6 +213,11 @@ for doc in nlp.pipe(texts, batch_size=256):
     do_something(doc)
 ```
 
+If the component runs into an error processing a batch (e.g. on an empty text),
+`nlp.pipe` will back off to processing each text individually. If it runs into
+an error on an individual text, a warning is shown and the doc is returned
+without additional annotation.
+
 Switch to GPU:
 
 ```python
