@@ -120,7 +120,11 @@ class HfTokenPipe(Pipe):
                             output_spans.append(output_span)
                             prev_ann_end = ann["end"]
                         else:
-                            text_excerpt = doc.text if len(doc.text) < 100 else doc.text[:100] + "..."
+                            text_excerpt = (
+                                doc.text
+                                if len(doc.text) < 100
+                                else doc.text[:100] + "..."
+                            )
                             warnings.warn(
                                 f"Skipping annotation, {ann} is overlapping or can't be aligned for doc '{text_excerpt}'"
                             )
@@ -131,7 +135,14 @@ class HfTokenPipe(Pipe):
         with warnings.catch_warnings():
             # the PipelineChunkIterator does not report its length correctly,
             # leading to many spurious warnings from torch
-            warnings.filterwarnings("ignore", message="Length of IterableDataset", category=UserWarning)
+            warnings.filterwarnings(
+                "ignore", message="Length of IterableDataset", category=UserWarning
+            )
+            warnings.filterwarnings(
+                "ignore",
+                message="You seem to be using the pipelines sequentially on GPU",
+                category=UserWarning,
+            )
             if len(docs) > 1:
                 try:
                     return self.hf_pipeline([doc.text for doc in docs])
@@ -144,7 +155,9 @@ class HfTokenPipe(Pipe):
                 try:
                     outputs.append(self.hf_pipeline(doc.text))
                 except Exception:
-                    text_excerpt = doc.text if len(doc.text) < 100 else doc.text[:100] + "..."
+                    text_excerpt = (
+                        doc.text if len(doc.text) < 100 else doc.text[:100] + "..."
+                    )
                     warnings.warn(
                         f"Unable to process, skipping annotation for doc '{text_excerpt}'"
                     )
