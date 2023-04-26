@@ -79,27 +79,33 @@ class HfTextPipe(Pipe):
                 yield doc
 
     def _get_annotations(self, docs: List[Doc], batch_size) -> List[List[dict]]:
-        # TODO: warn when truncating? (I'm not sure you can detect this
-        # easily through the current pipeline API)
-        try:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore", category=UserWarning)
-                return self.hf_pipeline(
-                    [doc.text for doc in docs], batch_size=batch_size, top_k=None
-                )
-        except Exception:
-            # TODO: better UX
-            pass
-        outputs = []
-        for doc in docs:
-            try:
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore", category=UserWarning)
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="You seem to be using the pipelines sequentially on GPU",
+                category=UserWarning,
+            )
+            if len(docs) > 1:
+                try:
+                    return self.hf_pipeline(
+                        [doc.text for doc in docs], batch_size=batch_size, top_k=None
+                    )
+                except Exception:
+                    warnings.warn(
+                        "Unable to process texts as batch, backing off to processing texts individually"
+                    )
+            outputs = []
+            for doc in docs:
+                try:
                     outputs.append(self.hf_pipeline(doc.text, top_k=None))
-            except Exception:
-                # TODO: better UX
-                warnings.warn(f"Unable to process, skipping doc {repr(doc)}")
-                outputs.append([])
+                except Exception:
+                    text_excerpt = (
+                        doc.text if len(doc.text) < 100 else doc.text[:100] + "..."
+                    )
+                    warnings.warn(
+                        f"Unable to process, skipping annotation for doc '{text_excerpt}'"
+                    )
+                    outputs.append([])
         return outputs
 
     # dummy serialization methods

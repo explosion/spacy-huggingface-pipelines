@@ -11,7 +11,13 @@ torch.set_num_threads(1)
 @pytest.mark.parametrize("aggregation_strategy", ("simple", "first", "average", "max"))
 @pytest.mark.parametrize("annotate", ("ents", "spans", "tag"))
 @pytest.mark.parametrize("n_process", (1, 2))
-@pytest.mark.filterwarnings("ignore::UserWarning")
+@pytest.mark.filterwarnings(
+    "ignore:Unable to process, skipping annotation for doc ' ':UserWarning"
+)
+@pytest.mark.filterwarnings(
+    "ignore:Unable to process, skipping annotation for doc '':UserWarning"
+)
+@pytest.mark.filterwarnings("ignore:Unable to process texts as batch:UserWarning")
 def test_hf_token_pipe(aggregation_strategy, annotate, n_process):
     if (
         n_process > 1
@@ -32,14 +38,14 @@ def test_hf_token_pipe(aggregation_strategy, annotate, n_process):
     )
     doc = nlp("a")
     _check_tok_cls_annotation(doc, annotate)
-    doc = nlp("a bc def " * 1000)
+    doc = nlp("a b c d e f " * 1000)
     _check_tok_cls_annotation(doc, annotate)
 
     doc = nlp("")
     doc = nlp(" ")
 
     for doc in nlp.pipe(
-        ["a", "b", " ", "c", "", "aaaaabbbbccc bbbccc cccc", "a bc def " * 500],
+        ["a", "b", " ", "c", "", "a b c d e a b c d e", "a b c d e f " * 250],
         batch_size=2,
         n_process=n_process,
     ):
@@ -62,7 +68,6 @@ def _check_tok_cls_annotation(doc, annotate):
 
 
 @pytest.mark.parametrize("n_process", (1, 2))
-@pytest.mark.filterwarnings("ignore::UserWarning")
 def test_hf_text_pipe(n_process):
     if (
         n_process > 1
