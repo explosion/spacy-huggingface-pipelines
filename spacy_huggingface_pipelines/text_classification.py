@@ -72,40 +72,40 @@ class HfTextPipe(Pipe):
         return next(self.pipe([doc]))
 
     def pipe(self, stream: Iterable[Doc], *, batch_size: int = 128) -> Iterator[Doc]:
+        for docs in util.minibatch(stream, size=batch_size):
+            outputs = self._get_annotations(docs, batch_size=batch_size)
+            for doc, output in zip(docs, outputs):
+                doc.cats.update({a["label"]: a["score"] for a in output})
+                yield doc
+
+    def _get_annotations(self, docs: List[Doc], batch_size) -> List[List[dict]]:
         with warnings.catch_warnings():
             warnings.filterwarnings(
                 "ignore",
                 message="You seem to be using the pipelines sequentially on GPU",
                 category=UserWarning,
             )
-            for docs in util.minibatch(stream, size=batch_size):
-                outputs = self._get_annotations(docs, batch_size=batch_size)
-                for doc, output in zip(docs, outputs):
-                    doc.cats.update({a["label"]: a["score"] for a in output})
-                    yield doc
-
-    def _get_annotations(self, docs: List[Doc], batch_size) -> List[List[dict]]:
-        if len(docs) > 1:
-            try:
-                return self.hf_pipeline(
-                    [doc.text for doc in docs], batch_size=batch_size, top_k=None
-                )
-            except Exception:
-                warnings.warn(
-                    "Unable to process texts as batch, backing off to processing texts individually"
-                )
-        outputs = []
-        for doc in docs:
-            try:
-                outputs.append(self.hf_pipeline(doc.text, top_k=None))
-            except Exception:
-                text_excerpt = (
-                    doc.text if len(doc.text) < 100 else doc.text[:100] + "..."
-                )
-                warnings.warn(
-                    f"Unable to process, skipping annotation for doc '{text_excerpt}'"
-                )
-                outputs.append([])
+            if len(docs) > 1:
+                try:
+                    return self.hf_pipeline(
+                        [doc.text for doc in docs], batch_size=batch_size, top_k=None
+                    )
+                except Exception:
+                    warnings.warn(
+                        "Unable to process texts as batch, backing off to processing texts individually"
+                    )
+            outputs = []
+            for doc in docs:
+                try:
+                    outputs.append(self.hf_pipeline(doc.text, top_k=None))
+                except Exception:
+                    text_excerpt = (
+                        doc.text if len(doc.text) < 100 else doc.text[:100] + "..."
+                    )
+                    warnings.warn(
+                        f"Unable to process, skipping annotation for doc '{text_excerpt}'"
+                    )
+                    outputs.append([])
         return outputs
 
     # dummy serialization methods
