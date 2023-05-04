@@ -1,8 +1,8 @@
-from .text_classification import HfTextPipe
-from .token_classification import HfTokenPipe
+from .text_classification import HFTextPipe
+from .token_classification import HFTokenPipe
 
 
 __all__ = [
-    "HfTextPipe",
-    "HfTokenPipe",
+    "HFTextPipe",
+    "HFTokenPipe",
 ]

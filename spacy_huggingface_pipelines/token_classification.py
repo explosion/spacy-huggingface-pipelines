@@ -62,7 +62,7 @@ def make_hf_token_pipe(
         stride=stride,
         **kwargs,
     )
-    return HfTokenPipe(
+    return HFTokenPipe(
         name=name,
         hf_pipeline=hf_pipeline,
         annotate=annotate,
@@ -72,7 +72,7 @@ def make_hf_token_pipe(
     )
 
 
-class HfTokenPipe(Pipe):
+class HFTokenPipe(Pipe):
     def __init__(
         self,
         name: str,

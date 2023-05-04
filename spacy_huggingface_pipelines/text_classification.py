@@ -48,14 +48,14 @@ def make_hf_text_pipe(
         truncation=True,
         **kwargs,
     )
-    return HfTextPipe(
+    return HFTextPipe(
         name=name,
         hf_pipeline=hf_pipeline,
         scorer=scorer,
     )
 
 
-class HfTextPipe(Pipe):
+class HFTextPipe(Pipe):
     def __init__(
         self, name: str, hf_pipeline: pipeline, *, scorer: Optional[Callable] = None
     ):
