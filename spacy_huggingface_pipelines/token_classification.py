@@ -113,6 +113,8 @@ class HFTokenPipe(Pipe):
                             label=ann["entity_group"],
                             alignment_mode=self.alignment_mode,
                         )
+                        if output_span is not None:
+                            output_span._.score = ann["score"]
                         if (
                             output_span is not None
                             and output_span.start_char >= prev_ann_end
