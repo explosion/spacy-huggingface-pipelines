@@ -118,5 +118,5 @@ def test_scores_are_added_as_extentions_to_spans(n_process):
     )
     doc = nlp("a")
     assert doc.spans["bert-base-ner"][0].has_extension("score")
-    assert doc.spans["b"][0]._.score > 0
+    assert doc.spans["bert-base-ner"][0]._.score > 0
 
