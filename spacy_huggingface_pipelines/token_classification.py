@@ -95,6 +95,8 @@ class HFTokenPipe(Pipe):
                 )
         self.alignment_mode = alignment_mode
         self.scorer = scorer
+        Span.set_extension("score", default=0.0, force=True)
+        
 
     def __call__(self, doc: Doc) -> Doc:
         return next(self.pipe([doc]))

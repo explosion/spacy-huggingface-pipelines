@@ -97,3 +97,26 @@ def test_hf_text_pipe(n_process):
     ):
         assert len(doc.cats) > 0
         assert all(l.startswith("LABEL_") for l in doc.cats)
+
+
+@pytest.mark.parametrize("n_process", (1, 2))
+def test_scores_are_added_as_extentions_to_spans(n_process):
+    if (
+        n_process > 1
+        and isinstance(get_torch_default_device().index, int)
+        and get_torch_default_device().index >= 0
+    ):
+        return
+    nlp = spacy.blank("xx")
+    nlp.add_pipe(
+        "hf_token_pipe",
+        config={
+            "model": "hf-internal-testing/tiny-random-BertForTokenClassification",
+            "annotate": "spans",
+            "annotate_spans_key": "bert-base-ner",
+        },
+    )
+    doc = nlp("a")
+    assert doc.spans["bert-base-ner"][0].has_extension("score")
+    assert doc.spans["b"][0]._.score > 0
+
