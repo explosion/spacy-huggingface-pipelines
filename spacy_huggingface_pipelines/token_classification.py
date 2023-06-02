@@ -167,7 +167,7 @@ class HFTokenPipe(Pipe):
 
     def _set_annotation_from_spans(self, doc: Doc, spans: SpanGroup) -> Doc:
         if self.annotate == "ents":
-            doc.set_ents(spans)
+            doc.set_ents(list(spans))
         elif self.annotate == "spans":
             doc.spans[self.annotate_spans_key] = spans
         elif self.annotate == "tag":
