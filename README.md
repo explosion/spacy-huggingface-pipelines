@@ -116,7 +116,8 @@ print(doc.ents)
 # (Sarah, London)
 ```
 
-2. Save named entity annotation as `Doc.spans[spans_key]`:
+2. Save named entity annotation as `Doc.spans[spans_key]` and scores as
+   `Doc.spans[spans_key].attrs["scores"]`:
 
 ```python
 import spacy
@@ -132,6 +133,8 @@ nlp.add_pipe(
 doc = nlp("My name is Sarah and I live in London")
 print(doc.spans["bert-base-ner"])
 # [Sarah, London]
+print(doc.spans["bert-base-ner"].attrs["scores"])
+# [0.99854773, 0.9996215]
 ```
 
 3. Save fine-grained tags as `Token.tag`:
