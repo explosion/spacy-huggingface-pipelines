@@ -7,6 +7,10 @@ import spacy
 
 torch.set_num_threads(1)
 
+pytestmark = pytest.mark.filterwarnings(
+    "ignore:The 'warn' method is deprecated.*:DeprecationWarning"
+)
+
 
 @pytest.mark.parametrize("aggregation_strategy", ("simple", "first", "average", "max"))
 @pytest.mark.parametrize("annotate", ("ents", "spans", "tag"))
@@ -63,6 +67,7 @@ def _check_tok_cls_annotation(doc, annotate):
                 assert ent.label_.startswith("LABEL_")
         elif annotate == "spans":
             assert len(doc.spans["tiny"]) > 0
+            assert len(doc.spans["tiny"]) == len(doc.spans["tiny"].attrs["scores"])
             for span in doc.spans["tiny"]:
                 assert span.label_.startswith("LABEL_")
 

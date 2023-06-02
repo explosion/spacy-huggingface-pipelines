@@ -4,7 +4,7 @@ import warnings
 from thinc.api import get_torch_default_device
 from spacy.language import Language
 from spacy.pipeline import Pipe
-from spacy.tokens import Doc, Span
+from spacy.tokens import Doc, Span, SpanGroup
 from spacy import util
 
 from transformers import pipeline
@@ -103,7 +103,7 @@ class HFTokenPipe(Pipe):
         for docs in util.minibatch(stream, size=batch_size):
             outputs = self._get_annotations(docs)
             for doc, output in zip(docs, outputs):
-                output_spans = []
+                output_spans = SpanGroup(doc, attrs={"scores": []})
                 prev_ann_end = 0
                 for ann in output:
                     if ann["start"] >= prev_ann_end:
@@ -118,6 +118,7 @@ class HFTokenPipe(Pipe):
                             and output_span.start_char >= prev_ann_end
                         ):
                             output_spans.append(output_span)
+                            output_spans.attrs["scores"].append(ann["score"])
                             prev_ann_end = ann["end"]
                         else:
                             text_excerpt = (
@@ -164,7 +165,7 @@ class HFTokenPipe(Pipe):
                     outputs.append([])
             return outputs
 
-    def _set_annotation_from_spans(self, doc: Doc, spans: List[Span]) -> Doc:
+    def _set_annotation_from_spans(self, doc: Doc, spans: SpanGroup) -> Doc:
         if self.annotate == "ents":
             doc.set_ents(spans)
         elif self.annotate == "spans":
