@@ -30,7 +30,7 @@ For GPU installation, follow the
 [spaCy installation quickstart with GPU](https://spacy.io/usage/), e.g.
 
 ```bash
-pip install -U spacy[cuda-autodetect]
+pip install -U spacy[cuda12x]
 ```
 
 If you are having trouble installing PyTorch, follow the
