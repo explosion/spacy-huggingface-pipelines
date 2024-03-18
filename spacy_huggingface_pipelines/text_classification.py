@@ -30,7 +30,7 @@ def make_hf_text_pipe(
     kwargs: dict,
 ):
     try:
-        device = get_torch_default_device().index
+        device = get_torch_default_device()
         if device is None:
             device = -1
     except Exception:
